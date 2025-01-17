@@ -484,9 +484,12 @@ MonoBehaviour:
   rb: {fileID: 1214543670}
   isSheep: 1
   speed: 5
-  dashSpeed: 8
+  dashSpeed: 0.05
   center: {x: 0, y: 0}
-  radius: 4
+  startPosition: {x: -2, y: 0}
+  currentRadius: 0
+  innerRadius: 2
+  outerRadius: 4
 --- !u!50 &1214543670
 Rigidbody2D:
   serializedVersion: 4
@@ -699,9 +702,12 @@ MonoBehaviour:
   rb: {fileID: 1675996608}
   isSheep: 0
   speed: 5
-  dashSpeed: 8
+  dashSpeed: 0.05
   center: {x: 0, y: 0}
-  radius: 4
+  startPosition: {x: 4, y: 0}
+  currentRadius: 0
+  innerRadius: 2
+  outerRadius: 4
 --- !u!50 &1675996608
 Rigidbody2D:
   serializedVersion: 4

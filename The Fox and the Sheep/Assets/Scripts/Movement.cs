@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class Movement : MonoBehaviour
 
@@ -10,18 +11,28 @@ public class Movement : MonoBehaviour
     // Movement properties
     private Vector2 _movement;
     [SerializeField] private float speed = 5f;
-    [SerializeField] private float dashSpeed = 8f;
+    [SerializeField] private float dashSpeed = 0.05f;
     private bool _isDashing;
     private bool _isOutside;
 
+
     // Circle properties
     [SerializeField] private Vector2 center = new(0, 0); // Fixed point of rotation (e.g., origin)
-    [SerializeField] private float radius = 4f;
+    [SerializeField] private Vector2 startPosition = new(0, 0); // Fixed point of rotation (e.g., origin)
+    [SerializeField] private float currentRadius;
+    [SerializeField] private float innerRadius = 2f;
+    [SerializeField] private float outerRadius = 4f;
     private float _angle;
 
     private void Start()
     {
-        _isDashing = false;
+        // Set the _isOutside variable to be the opposite of what it is for when the toggling happens 
+        _isOutside = isSheep;
+
+        // Calculate initial angle based on the current position of the sprite relative to the center
+        Vector2 direction = rb.position - center;
+        currentRadius = direction.magnitude; // Use the actual distance from the center
+        _angle = Mathf.Atan2(direction.y, direction.x); // Set angle based on current position
     }
 
     // Update is called once per frame
@@ -36,7 +47,10 @@ public class Movement : MonoBehaviour
     private void FixedUpdate()
     {
         // Movement
-        rb.MovePosition(rb.position + _movement * (speed * Time.fixedDeltaTime));
+        if (!_isDashing)
+        {
+            rb.MovePosition(rb.position + _movement * (speed * Time.fixedDeltaTime));
+        }
     }
 
     /**
@@ -50,8 +64,8 @@ public class Movement : MonoBehaviour
             _movement.x = Input.GetAxisRaw("HorizontalWASD");
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                _isDashing = true;
                 _isOutside = !_isOutside;
+                _isDashing = true;
             }
         }
         else
@@ -59,8 +73,8 @@ public class Movement : MonoBehaviour
             _movement.x = Input.GetAxisRaw("HorizontalARROWS");
             if (Input.GetKeyDown(KeyCode.Mouse0))
             {
-                _isDashing = true;
                 _isOutside = !_isOutside;
+                _isDashing = true;
             }
         }
     }
@@ -74,8 +88,8 @@ public class Movement : MonoBehaviour
         _angle += _movement.x * speed * Time.deltaTime;
 
         // Calculate the new position relative to the fixed center point
-        var x = center.x + Mathf.Cos(_angle) * radius;
-        var y = center.y + Mathf.Sin(_angle) * radius;
+        var x = center.x + Mathf.Cos(_angle) * currentRadius;
+        var y = center.y + Mathf.Sin(_angle) * currentRadius;
 
         // Set the object's position to the new calculated position
         rb.position = new Vector2(x, y);
@@ -83,15 +97,22 @@ public class Movement : MonoBehaviour
 
     private void ChangePens()
     {
-        SetRadius();
+        Dash(_isOutside);
     }
 
-    private void SetRadius()
+    private void Dash(bool isOutside)
     {
-        radius = _isOutside ? 2f : 4f; // Alternate between inner and outer circle 
-    }
-
-    private void Dash()
-    {
+        if (isOutside && currentRadius > innerRadius && _isDashing)
+        {
+            currentRadius -= dashSpeed;
+        }
+        else if (!isOutside && currentRadius < outerRadius && _isDashing)
+        {
+            currentRadius += dashSpeed;
+        }
+        else
+        {
+            _isDashing = false;
+        }
     }
 }
