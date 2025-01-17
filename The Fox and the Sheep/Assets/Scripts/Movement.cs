@@ -14,16 +14,15 @@ public class Movement : MonoBehaviour
     [SerializeField] private float dashSpeed = 0.05f;
     private bool _isDashing;
     private bool _isOutside;
-
-
+    
     // Circle properties
     [SerializeField] private Vector2 center = new(0, 0); // Fixed point of rotation (e.g., origin)
-    [SerializeField] private Vector2 startPosition = new(0, 0); // Fixed point of rotation (e.g., origin)
     [SerializeField] private float currentRadius;
     [SerializeField] private float innerRadius = 2f;
     [SerializeField] private float outerRadius = 4f;
     private float _angle;
 
+    // Start is called once before the beginning of the game 
     private void Start()
     {
         // Set the _isOutside variable to be the opposite of what it is for when the toggling happens 
@@ -40,8 +39,7 @@ public class Movement : MonoBehaviour
     {
         ReadInput();
         MapToCircle();
-
-        ChangePens();
+        DashHandler(_isOutside);
     }
 
     private void FixedUpdate()
@@ -95,12 +93,10 @@ public class Movement : MonoBehaviour
         rb.position = new Vector2(x, y);
     }
 
-    private void ChangePens()
-    {
-        Dash(_isOutside);
-    }
-
-    private void Dash(bool isOutside)
+    /**
+     * Translates the player to the other circle (inner or outer) depending on which one it is in currently
+     */
+    private void DashHandler(bool isOutside)
     {
         if (isOutside && currentRadius > innerRadius && _isDashing)
         {
