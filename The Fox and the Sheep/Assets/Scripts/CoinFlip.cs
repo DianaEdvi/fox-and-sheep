@@ -3,24 +3,29 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
+using Random = UnityEngine.Random;
 
 public class CoinFlip : MonoBehaviour
 {
     // Start is called before the first frame update
     void Start()
     {
-        _isEntering = true;
+        SpawnCoin();
     }
 
+    // Scale properties
     [SerializeField] private Vector3 enterTargetScale = new Vector3(0.5f, 0.5f, 0.5f); // target size for entering
     [SerializeField] private Vector3 exitTargetScale = new Vector3(0, 0, 0); // target size for exiting size
     [SerializeField] private Vector3 targetScale = new Vector3(0.5f, 0.5f, 0.5f); // Final size
-    private bool _isEntering;
+    private bool _isActive;
     public float scaleSpeed = 3f; // Speed of scaling
+
+    // Randomize properties 
+    [SerializeField] private GameObject[] coins;
 
     private void Update()
     {
-        ScaleCoin(_isEntering);
+        ScaleCoin(_isActive);
         // Every 3-10 seconds, flip a coin 
         // The coin stays active for 5 seconds 
     }
@@ -32,7 +37,8 @@ public class CoinFlip : MonoBehaviour
     {
         if (other.CompareTag("Player")) // And animation is complete 
         {
-            _isEntering = false;
+            _isActive = false;
+            SpawnCoin();
         }
     }
 
@@ -52,5 +58,35 @@ public class CoinFlip : MonoBehaviour
         {
             transform.localScale = targetScale; // Snap to target size
         }
+    }
+
+    private void SpawnCoin()
+    {
+        int activeCoinCounter = 0;
+        foreach (var coin in coins)
+        {
+            if (_isActive && activeCoinCounter < 2)
+            {
+                activeCoinCounter++;
+            }
+            else
+            {
+                _isActive = false;
+            }
+        }
+
+        StartCoroutine(CountdownTimer());
+    }
+
+    IEnumerator CountdownTimer()
+    {
+        var randomTime = Random.Range(3, 10);
+        yield return new WaitForSeconds(randomTime); // Wait for random time
+        _isActive = true;
+    }
+
+    private void RandomizeCoin()
+    {
+        var randomIndex = Random.Range(0, coins.Length);
     }
 }
