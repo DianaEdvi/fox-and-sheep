@@ -20,13 +20,15 @@ public class CoinFlip : MonoBehaviour
     private bool _isActive;
     public float scaleSpeed = 3f; // Speed of scaling
 
+    // Animation properties
+    [SerializeField] private Animator _animator;
+
     // Randomize properties 
     [SerializeField] private GameObject[] coins;
 
     private void Update()
     {
         ScaleCoin(_isActive);
-        // Every 3-10 seconds, flip a coin 
         // The coin stays active for 5 seconds 
     }
 
@@ -38,6 +40,9 @@ public class CoinFlip : MonoBehaviour
         if (other.CompareTag("Player")) // And animation is complete 
         {
             _isActive = false;
+            _animator.SetBool("CanRotate", true);
+            _animator.SetBool("FoxIdle", false);
+            _animator.SetBool("SheepIdle", false);
             SpawnCoin();
         }
     }
@@ -62,19 +67,6 @@ public class CoinFlip : MonoBehaviour
 
     private void SpawnCoin()
     {
-        int activeCoinCounter = 0;
-        foreach (var coin in coins)
-        {
-            if (_isActive && activeCoinCounter < 2)
-            {
-                activeCoinCounter++;
-            }
-            else
-            {
-                _isActive = false;
-            }
-        }
-
         StartCoroutine(CountdownTimer());
     }
 
@@ -85,8 +77,25 @@ public class CoinFlip : MonoBehaviour
         _isActive = true;
     }
 
-    private void RandomizeCoin()
+    private string FoxOrSheep()
     {
-        var randomIndex = Random.Range(0, coins.Length);
+        var x = Random.Range(0, 2);
+
+        return x == 0 ? "SheepIdle" : "FoxIdle";
+    }
+
+    private void CountRotations()
+    {
+        string foxOrSheep = FoxOrSheep();
+        if (_isActive)
+        {
+            _animator.SetBool(foxOrSheep, true);
+            _animator.SetBool("CanRotate", false);
+        }
+    }
+
+    private void FrameReached(string type)
+    {
+        _animator.SetBool(type, true);
     }
 }
