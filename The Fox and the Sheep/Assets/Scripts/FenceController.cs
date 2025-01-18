@@ -9,6 +9,7 @@ public class FenceController : MonoBehaviour
     [SerializeField] private SpriteRenderer _spriteRenderer;
     [SerializeField] private Color defaultFenceColor;
     [SerializeField] private Color hoverFenceColor;
+    private bool isCollidingWithFence;
 
     /**
      * Change the color of the fence if the player is hovering over it
@@ -18,6 +19,7 @@ public class FenceController : MonoBehaviour
         if (other.CompareTag("Player")) // Assuming the sprite has the tag "Player"
         {
             _spriteRenderer.color = hoverFenceColor; // Change to the desired color
+            isCollidingWithFence = true;
         }
     }
 
@@ -29,6 +31,15 @@ public class FenceController : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             _spriteRenderer.color = defaultFenceColor; // Reset to original color
+            isCollidingWithFence = false;
         }
+    }
+
+    /**
+     * Access if the fence is being collided with in other scripts
+     */
+    public bool GetIsCollidingWithFence()
+    {
+        return isCollidingWithFence;
     }
 }

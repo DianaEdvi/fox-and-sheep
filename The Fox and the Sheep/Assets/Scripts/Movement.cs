@@ -14,7 +14,11 @@ public class Movement : MonoBehaviour
     [SerializeField] private float dashSpeed = 0.05f;
     private bool _isDashing;
     private bool _isOutside;
-    
+
+    // Collision properties
+    [SerializeField] private FenceController[] fences;
+    private bool _isCollidingWithFence = false;
+
     // Circle properties
     [SerializeField] private Vector2 center = new(0, 0); // Fixed point of rotation (e.g., origin)
     [SerializeField] private float currentRadius;
@@ -98,11 +102,11 @@ public class Movement : MonoBehaviour
      */
     private void DashHandler(bool isOutside)
     {
-        if (isOutside && currentRadius > innerRadius && _isDashing)
+        if (isOutside && currentRadius > innerRadius && _isDashing && CheckCollisions())
         {
             currentRadius -= dashSpeed;
         }
-        else if (!isOutside && currentRadius < outerRadius && _isDashing)
+        else if (!isOutside && currentRadius < outerRadius && _isDashing && CheckCollisions())
         {
             currentRadius += dashSpeed;
         }
@@ -110,5 +114,22 @@ public class Movement : MonoBehaviour
         {
             _isDashing = false;
         }
+    }
+
+    /**
+     * If the player is colliding with the fence, then they can dash
+     */
+    private bool CheckCollisions()
+    {
+        // For every fence, check if the player is colliding with it
+        foreach (var fenceController in fences)
+        {
+            if (fenceController.GetIsCollidingWithFence())
+            {
+                return true; // If any fence reports collision, return true
+            }
+        }
+
+        return false; // Return false only if no collisions are detected
     }
 }
